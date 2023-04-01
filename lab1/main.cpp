@@ -10,7 +10,7 @@
 
 using namespace std;
 
-// Функция, для которой осуществляется поиск приближенных значений корней
+/// @brief Функция, для которой осуществляется поиск приближенных значений корней
 double func(double x) { return x - 10 * sin(x); }
 
 /// @brief Производная функции func в точке x
@@ -178,7 +178,7 @@ int main() {
 
     // Границы отрезка, точность и количество шагов
     double a = -10, b = 10, error = pow(10.0, -10);
-    uint16_t numOfSteps = 1000;
+    uint16_t numOfSteps = 1000 ;
 
     // Root separation
     auto roots = separate_roots(a, b, numOfSteps, &func);
