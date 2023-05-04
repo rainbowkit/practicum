@@ -5,6 +5,7 @@
 #include <vector>
 #include <iomanip>
 #include <algorithm>
+#include <cmath>
 
 double func(double x);
 
@@ -17,16 +18,36 @@ public:
     CloserTo(double x0) {
         this->x0 = x0;
     }
-    bool operator() (std::pair<double, double> &p1, std::pair<double, double> &p2) {return abs(p1.first - x0) < abs(p2.first - x0);}
+    bool operator()(const std::pair<double, double> &p1, const std::pair<double, double> &p2)
+    {
+        return std::abs(p1.first - x0) < std::abs(p2.first - x0);
+    }
+
 private:
     double x0;
 };
 
 /// @brief Генерация таблицы со значениями с фиксированным шагом
-std::vector<std::pair<double, double>> generateTable(double a, double b, uint16_t nodeCount);
+/// inverse "переворачивает" таблицу для обратного интерполирования
+std::vector<std::pair<double, double>> generateTable(double a, double b, uint16_t nodeCount, bool inverse, double (*func)(double x));
 
-void calculateValues(std::vector<std::pair<double, double>> &table);
-std::pair<double, double> lagrange(double x, std::vector<std::pair<double, double>> &table, uint16_t power);
-std::pair<double, double> newton(double x, std::vector<std::pair<double, double>> &table, uint16_t power);
+/// @brief Calculate interpolation polynomial in Lagrange form for value x
+/// func is used to calculate error
+std::pair<double, double> lagrange(double x,
+                                   const std::vector<std::pair<double, double>> &table,
+                                   uint16_t power,
+                                   double (*func)(double x),
+                                   bool inverse = false);
+
+/// @brief Calculate interpolation polynomial in Newton form for value x
+/// func is used to calculate error
+std::pair<double, double> newton(double x,
+                                 const std::vector<std::pair<double, double>> &table,
+                                 uint16_t power,
+                                 double (*func)(double x),
+                                 bool inverse = false);
+
+/// @brief Check if vector is sorted by first element of pair
+bool is_monot(const std::vector<std::pair<double, double>> &table);
 
 #endif // TASK_H

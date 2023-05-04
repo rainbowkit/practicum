@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>816</width>
-    <height>468</height>
+    <width>892</width>
+    <height>529</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -161,6 +161,20 @@ QListWidget {
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="inverse">
+         <property name="text">
+          <string>Обратное интерполирование</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="monot">
+         <property name="text">
+          <string>Функция монотонна</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="calculate">
          <property name="text">
           <string>Вычислить</string>
@@ -222,8 +236,8 @@ QListWidget {
    <slot>calculate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>243</x>
-     <y>438</y>
+     <x>265</x>
+     <y>506</y>
     </hint>
     <hint type="destinationlabel">
      <x>280</x>
@@ -247,9 +261,26 @@ QListWidget {
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>inverse</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>inverseOnToggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>421</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>calculate()</slot>
   <slot>replot()</slot>
+  <slot>inverseOnToggle()</slot>
  </slots>
 </ui>

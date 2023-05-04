@@ -22,9 +22,11 @@ public:
 private slots:
     void calculate();
     void replot();
+    void inverseOnToggle();
 private:
     void rescaleAndMatch();
 
+    bool inverse;
     Ui::MainWindow *ui;
     QVector<double> x, y;
 };

@@ -2,11 +2,17 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+// Must be double (write 80.0 instead of 80)
+#define POINT_COUNT 80.0
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    ui->monot->setEnabled(false);
+    inverse = false;
 
     // Setup data for plot
     x = QVector<double>(101);
@@ -20,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->graph->addGraph();
     ui->graph->addGraph();
     ui->graph->addGraph();
+    ui->graph->addGraph(ui->graph->yAxis, ui->graph->xAxis);
 
     ui->graph->graph(0)->setPen(QColor(255, 0, 0, 100));
     ui->graph->graph(0)->setName("f(x) = sin(x) – x^2/2");
@@ -40,6 +47,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->graph->graph(3)->setLineStyle(QCPGraph::lsNone);
     ui->graph->graph(3)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 6));
     ui->graph->graph(3)->setName("Точка интерпол.");
+
+    ui->graph->graph(4)->setPen(QColor(0, 0, 255, 100));
+    ui->graph->graph(4)->setName("Обратная ф.");
+
 
     // Additional properties
     ui->graph->xAxis->setLabel("x");
@@ -64,6 +75,9 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::calculate() {
+    inverse = ui->inverse->isChecked();
+    ui->graph->graph(4)->setVisible(inverse);
+
     const double x0 = ui->xInter->value();
 
     // Values validation
@@ -88,7 +102,17 @@ void MainWindow::calculate() {
     }
 
     // Dots
-    auto table = generateTable(a, b, nodesCount);
+    auto table = generateTable(a, b, nodesCount, inverse, func);
+
+    if (inverse && ui->monot->isChecked() && !is_monot(table)) {
+        QMessageBox msgBox;
+        msgBox.setText("Функция не строго монотонна на заданном отрезке, уберите "
+                       "галочку монотонности или выберите другой интервал");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+        return;
+    }
+
     sort(table.begin(), table.end(), CloserTo(x0));
     QVector<double> x1, y1;
     ui->nodes->clear();
@@ -104,7 +128,7 @@ void MainWindow::calculate() {
     x1.clear();
     y1.clear();
     ui->nodes->addItem(QString::fromStdString(" "));
-    for (int i = power + 1; i < table.size(); ++i) {
+    for (uint16_t i = power + 1; i < table.size(); ++i) {
         x1.push_back(table.at(i).first);
         y1.push_back(table.at(i).second);
         ui->nodes->addItem(QString::fromStdString("X =  ") +
@@ -117,8 +141,8 @@ void MainWindow::calculate() {
     y1.clear();
 
     // Interpolation itself
-    auto result1 = lagrange(x0, table, power);
-    auto result2 = newton(x0, table, power);
+    auto result1 = lagrange(x0, table, power, func, inverse);
+    auto result2 = newton(x0, table, power, func, inverse);
     ui->result->setText(QString::fromStdString("Форма Лагранжа: ") + QString::number(result1.first) +
                         QString::fromStdString("\nПогрешность: ") + QString::number(result1.second) +
                         QString::fromStdString("\nФорма Ньютона: ") + QString::number(result2.first) +
@@ -133,15 +157,29 @@ void MainWindow::calculate() {
 }
 
 void MainWindow::replot() {
-    auto axis = ui->graph->xAxis->range();
+    auto axisX = ui->graph->xAxis->range();
+    auto axisY = ui->graph->yAxis->range();
 
     // Main graph
-    for (int i=0; i<101; ++i)
+    for (int i=0; i < POINT_COUNT+1; ++i)
     {
-        x[i] = axis.lower + i/100.0 * axis.size();
+        x[i] = axisX.lower + i/POINT_COUNT * axisX.size();
         y[i] = sin(x[i]) - x[i]*x[i]/2;
     }
     ui->graph->graph(0)->setData(x, y);
 
+    if (inverse) {
+        for (int i=0; i < POINT_COUNT+1; ++i)
+        {
+            x[i] = axisY.lower + i/POINT_COUNT * axisY.size();
+            y[i] = sin(x[i]) - x[i]*x[i]/2;
+        }
+        ui->graph->graph(4)->setData(x, y);
+    }
+
     ui->graph->replot();
+}
+
+void MainWindow::inverseOnToggle() {
+    ui->monot->setEnabled(!ui->monot->isEnabled());
 }
