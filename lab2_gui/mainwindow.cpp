@@ -101,10 +101,11 @@ void MainWindow::calculate() {
         ui->leftBound->setStyleSheet("");
     }
 
+
     // Dots
     auto table = generateTable(a, b, nodesCount, inverse, func);
 
-    if (inverse && ui->monot->isChecked() && !is_monot(table)) {
+    if (inverse && ui->monot->isChecked() && !isMonot(table)) {
         QMessageBox msgBox;
         msgBox.setText("Функция не строго монотонна на заданном отрезке, уберите "
                        "галочку монотонности или выберите другой интервал");
@@ -113,7 +114,10 @@ void MainWindow::calculate() {
         return;
     }
 
+    // Sort by distance from x0
     sort(table.begin(), table.end(), CloserTo(x0));
+
+    // Display all known points
     QVector<double> x1, y1;
     ui->nodes->clear();
     for (int i = 0; i < power + 1; ++i) {
@@ -141,18 +145,27 @@ void MainWindow::calculate() {
     y1.clear();
 
     // Interpolation itself
-    auto result1 = lagrange(x0, table, power, func, inverse);
-    auto result2 = newton(x0, table, power, func, inverse);
-    ui->result->setText(QString::fromStdString("Форма Лагранжа: ") + QString::number(result1.first) +
-                        QString::fromStdString("\nПогрешность: ") + QString::number(result1.second) +
-                        QString::fromStdString("\nФорма Ньютона: ") + QString::number(result2.first) +
-                        QString::fromStdString("\nПогрешность: ") + QString::number(result2.second));
+    if (inverse) {
+        auto roots = findFirstRoot(a, b, func, x0, std::pow(10, -8));
+        ui->result->setText(QString::fromStdString("1-й корень f(x) = y: ") + QString::number(roots.at(0).first) +
+                            QString::fromStdString("\nПогрешность: ") + QString::number(roots.at(0).second));
+        for (auto root : roots) {
+            x1.push_back(x0);
+            y1.push_back(root.first);
+        }
+    } else {
+        auto result1 = lagrange(x0, table, power, func, inverse);
+        auto result2 = newton(x0, table, power, func, inverse);
+        ui->result->setText(QString::fromStdString("Форма Лагранжа: ") + QString::number(result1.first) +
+                            QString::fromStdString("\nПогрешность: ") + QString::number(result1.second) +
+                            QString::fromStdString("\nФорма Ньютона: ") + QString::number(result2.first) +
+                            QString::fromStdString("\nПогрешность: ") + QString::number(result2.second));
+        x1.push_back(x0);
+        y1.push_back(result1.first);
+    }
 
-    // Plotting result in Lagrange form
-    x1.push_back(x0);
-    y1.push_back(result1.first);
+    // Plotting result
     ui->graph->graph(3)->setData(x1, y1);
-
     replot();
 }
 

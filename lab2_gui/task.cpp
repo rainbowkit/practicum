@@ -89,7 +89,7 @@ std::pair<double, double> newton(double x,
 /// @param numOfSteps Количество шагов, отрезков, на которых проверяется перемена знака
 /// @param func Указатель на саму функцию
 /// @return Список отрезков перемены знака
-std::vector<std::pair<double, double>> separate_roots(double a, double b, uint16_t numOfSteps, double (*func)(double x)) {
+std::vector<std::pair<double, double>> separateRoots(double a, double b, uint16_t numOfSteps, std::function<double(double)>& func) {
     std::vector<std::pair<double, double>> roots;
     double step = (b - a) / numOfSteps;
     double x1 = a;
@@ -120,8 +120,8 @@ std::vector<std::pair<double, double>> separate_roots(double a, double b, uint16
 /// @param error Точность
 /// @param func  Указатель на саму функцию
 /// @return Список пар вида (приближённое значение, погрешность)
-std::vector<std::pair<double, double>> secant_method(
-    const std::vector<std::pair<double, double>> &roots, double error, double (*func)(double))
+std::vector<std::pair<double, double>> secantMethod(
+    const std::vector<std::pair<double, double>> &roots, double error, std::function<double(double)>& func)
 {
     std::vector<std::pair<double, double>> refined_roots;
     double x1, x2, derivative;
@@ -150,7 +150,7 @@ std::vector<std::pair<double, double>> secant_method(
     return refined_roots;
 }
 
-bool is_monot(const std::vector<std::pair<double, double>> &table)
+bool isMonot(const std::vector<std::pair<double, double>> &table)
 {
     bool acsending = table.at(0).first < table.at(1).first;
     for (uint16_t i = 1; i < table.size() - 1; ++i) {
@@ -160,4 +160,12 @@ bool is_monot(const std::vector<std::pair<double, double>> &table)
         }
     }
     return true;
+}
+
+std::vector<std::pair<double, double>> findFirstRoot(const double a, const double b, double (*func)(double), const double y, const double error)
+{
+    std::function<double(double)> shiftFunc = [&func, y](const double x) {return func(x) - y;};
+    auto roots = separateRoots(a, b, 100, shiftFunc);
+    if (roots.size() == 0) { return std::vector<std::pair<double, double>>(); }
+    return secantMethod(roots, error, shiftFunc);
 }

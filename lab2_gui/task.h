@@ -48,6 +48,9 @@ std::pair<double, double> newton(double x,
                                  bool inverse = false);
 
 /// @brief Check if vector is sorted by first element of pair
-bool is_monot(const std::vector<std::pair<double, double>> &table);
+bool isMonot(const std::vector<std::pair<double, double>> &table);
+
+/// @brief find first root of function func(x) = y on interval [a, b] with given error
+std::vector<std::pair<double, double>> findFirstRoot(const double a, const double b, double (*func)(double), const double y, const double error);
 
 #endif // TASK_H
