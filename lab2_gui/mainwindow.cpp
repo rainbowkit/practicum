@@ -103,14 +103,12 @@ void MainWindow::calculate() {
 
 
     // Dots
-    auto table = generateTable(a, b, nodesCount, inverse, func);
+    auto table = generateTable(a, b, nodesCount, inverse && ui->monot->isChecked(), func);
 
     if (inverse && ui->monot->isChecked() && !isMonot(table)) {
-        QMessageBox msgBox;
-        msgBox.setText("Функция не строго монотонна на заданном отрезке, уберите "
-                       "галочку монотонности или выберите другой интервал");
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.exec();
+        alert("Функция не строго монотонна на заданном отрезке, уберите "
+              "галочку монотонности или выберите другой интервал",
+              QMessageBox::Warning);
         return;
     }
 
@@ -145,10 +143,19 @@ void MainWindow::calculate() {
     y1.clear();
 
     // Interpolation itself
-    if (inverse) {
-        auto roots = findFirstRoot(a, b, func, x0, std::pow(10, -8));
-        ui->result->setText(QString::fromStdString("1-й корень f(x) = y: ") + QString::number(roots.at(0).first) +
-                            QString::fromStdString("\nПогрешность: ") + QString::number(roots.at(0).second));
+    if (inverse && !ui->monot->isChecked()) {
+        auto roots = findFirstRoot(a, b, power, table, func, x0, std::pow(10, -8));
+        if (roots.size() == 0) {
+            replot();
+            alert(QString::fromStdString("Обратная функция не определена в точке ")
+                      + QString::number(x0),
+                  QMessageBox::Warning);
+            return;
+        } else {
+            ui->result->setText(
+                QString::fromStdString("1-й корень f(x) = y: ") + QString::number(roots.at(0).first)
+                + QString::fromStdString("\nПогрешность: ") + QString::number(roots.at(0).second));
+        }
         for (auto root : roots) {
             x1.push_back(x0);
             y1.push_back(root.first);
@@ -195,4 +202,11 @@ void MainWindow::replot() {
 
 void MainWindow::inverseOnToggle() {
     ui->monot->setEnabled(!ui->monot->isEnabled());
+}
+
+void MainWindow::alert(const QString prompt, QMessageBox::Icon icon)
+{
+    msgBox.setText(prompt);
+    msgBox.setIcon(icon);
+    msgBox.exec();
 }

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 
+#include "qmessagebox.h"
 #include "task.h"
 
 QT_BEGIN_NAMESPACE
@@ -25,8 +26,10 @@ private slots:
     void inverseOnToggle();
 private:
     void rescaleAndMatch();
+    void alert(const QString prompt, QMessageBox::Icon icon);
 
     bool inverse;
+    QMessageBox msgBox;
     Ui::MainWindow *ui;
     QVector<double> x, y;
 };

@@ -51,6 +51,13 @@ std::pair<double, double> newton(double x,
 bool isMonot(const std::vector<std::pair<double, double>> &table);
 
 /// @brief find first root of function func(x) = y on interval [a, b] with given error
-std::vector<std::pair<double, double>> findFirstRoot(const double a, const double b, double (*func)(double), const double y, const double error);
+std::vector<std::pair<double, double>> findFirstRoot(
+    const double a,
+    const double b,
+    uint16_t power,
+    const std::vector<std::pair<double, double>> &table,
+    double (*func)(double),
+    const double y,
+    const double error);
 
 #endif // TASK_H

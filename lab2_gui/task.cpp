@@ -162,9 +162,18 @@ bool isMonot(const std::vector<std::pair<double, double>> &table)
     return true;
 }
 
-std::vector<std::pair<double, double>> findFirstRoot(const double a, const double b, double (*func)(double), const double y, const double error)
+std::vector<std::pair<double, double>> findFirstRoot(
+    const double a,
+    const double b,
+    uint16_t power,
+    const std::vector<std::pair<double, double>> &table,
+    double (*func)(double),
+    const double y,
+    const double error)
 {
-    std::function<double(double)> shiftFunc = [&func, y](const double x) {return func(x) - y;};
+    std::function<double(double)> shiftFunc = [&func, &table, power, y](const double x) {
+        return lagrange(x, table, power, func).first - y;
+    };
     auto roots = separateRoots(a, b, 100, shiftFunc);
     if (roots.size() == 0) { return std::vector<std::pair<double, double>>(); }
     return secantMethod(roots, error, shiftFunc);
