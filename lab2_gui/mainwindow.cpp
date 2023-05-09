@@ -151,15 +151,17 @@ void MainWindow::calculate() {
                       + QString::number(x0),
                   QMessageBox::Warning);
             return;
-        } else {
-            ui->result->setText(
-                QString::fromStdString("1-й корень f(x) = y: ") + QString::number(roots.at(0).first)
-                + QString::fromStdString("\nПогрешность: ") + QString::number(roots.at(0).second));
         }
+        QString rootsText = QString::fromStdString("Корни f(x) = y:\n");
         for (auto root : roots) {
             x1.push_back(x0);
             y1.push_back(root.first);
+            rootsText += QString::number(root.first) +
+                         QString::fromStdString(" (Невязка = ") +
+                         QString::number(root.second)+
+                         QString::fromStdString(")\n");
         }
+        ui->result->setText(rootsText);
     } else {
         auto result1 = lagrange(x0, table, power, func, inverse);
         auto result2 = newton(x0, table, power, func, inverse);
