@@ -2,9 +2,13 @@
 #include <cmath>
 #include <vector>
 
-double func(double x) {return     std::exp(3*x);}
-double der1(double x) {return 3 * std::exp(3*x);}
-double der2(double x) {return 9 * std::exp(3*x);}
+//double func(double x) {return     std::exp(3*x);}
+//double der1(double x) {return 3 * std::exp(3*x);}
+//double der2(double x) {return 9 * std::exp(3*x);}
+
+double func(double x) { return  std::sin(x); }
+double der1(double x) { return  std::cos(x); }
+double der2(double x) { return -std::sin(x); }
 
 // Derivatives for the first and the last points, and any point in between
 double derFirst(double y0, double y1, double y2, double step) { return (-3 * y0 + 4 * y1 - y2)/(2 * step); }
