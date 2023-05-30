@@ -82,6 +82,31 @@ double int3by8(double a, double b, double steps, double(*f)(double)) {
     return sum;
 }
 
+void printAllMethods(const double a, const double b, const uint32_t steps, double (*f)(double)) {
+    std::cout << "\n\n====================\n";
+    std::cout << "Results for " << steps << " steps\n";
+
+    double actual = defIntegral(a, b);
+
+    double result = lRect(a, b, steps, f);
+    std::cout << "Left Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+
+    result = rRect(a, b, steps, f);
+    std::cout << "Right Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+
+    result = mRect(a, b, steps, f);
+    std::cout << "Middle Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+
+    result = trapez(a, b, steps, f);
+    std::cout << "Trapezoidal:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+
+    result = simpson(a, b, steps, f);
+    std::cout << "Simpson:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+
+    result = int3by8(a, b, steps, f);
+    std::cout << "3/8 method:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+}
+
 
 int main() {
     double a, b;
@@ -96,28 +121,17 @@ int main() {
     std::cout << "Enter number of steps: ";
     std::cin >> steps;
 
-    double actual = defIntegral(a, b);
-    std::cout << "Actual value:\t" << actual << std::endl;
+    uint32_t l;
+    std::cout << "Enter l: ";
+    std::cin >> l;
 
     std::cout << std::scientific;
 
-    double result = lRect(a, b, steps, func);
-    std::cout << "Left Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+    double actual = defIntegral(a, b);
+    std::cout << "Actual value:\t" << actual << std::endl;
 
-    result = rRect(a, b, steps, func);
-    std::cout << "Right Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = mRect(a, b, steps, func);
-    std::cout << "Middle Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = trapez(a, b, steps, func);
-    std::cout << "Trapezoidal:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = simpson(a, b, steps, func);
-    std::cout << "Simpson:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = int3by8(a, b, steps, func);
-    std::cout << "3/8 method:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+    printAllMethods(a, b, steps, func);
+    printAllMethods(a, b, l * steps, func);
 
     return 0;
 }
