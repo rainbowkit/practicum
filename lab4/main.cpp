@@ -1,5 +1,10 @@
 #include <iostream>
 #include <cmath>
+#include <cstdint>
+
+
+typedef double(*func_t)(double);
+typedef double(*int_func_t)(double, double, double, func_t);
 
 // Precalculated
 double func1(double x) { return std::sin(x); }
@@ -30,7 +35,7 @@ double defIntegral(double a, double b) { return integral(b) - integral(a); }
 
 
 // Quadrature formulas
-double lRect(double a, double b, double steps, double(*f)(double)) {
+double lRect(double a, double b, double steps, func_t f) {
     double step = (b - a) / steps;
     double sum = 0;
     for (uint32_t i = 0; i < steps; ++i) {
@@ -38,7 +43,7 @@ double lRect(double a, double b, double steps, double(*f)(double)) {
     }
     return step * sum;
 }
-double rRect(double a, double b, double steps, double(*f)(double)) {
+double rRect(double a, double b, double steps, func_t f) {
     double step = (b - a) / steps;
     double sum = 0;
     for (uint32_t i = 1; i <= steps; ++i) {
@@ -46,7 +51,7 @@ double rRect(double a, double b, double steps, double(*f)(double)) {
     }
     return step * sum;
 }
-double mRect(double a, double b, double steps, double(*f)(double)) {
+double mRect(double a, double b, double steps, func_t f) {
     double step = (b - a) / steps;
     double sum = 0;
     for (uint32_t i = 0; i < steps; ++i) {
@@ -54,7 +59,7 @@ double mRect(double a, double b, double steps, double(*f)(double)) {
     }
     return step * sum;
 }
-double trapez(double a, double b, double steps, double(*f)(double)) {
+double trapez(double a, double b, double steps, func_t f) {
     double step = (b - a) / steps;
     double sum = 0;
     for (uint32_t i = 1; i < steps; ++i) {
@@ -62,7 +67,7 @@ double trapez(double a, double b, double steps, double(*f)(double)) {
     }
     return step * (2 * sum + f(a) + f(b)) / 2;
 }
-double simpson(double a, double b, double steps, double(*f)(double)) {
+double simpson(double a, double b, double steps, func_t f) {
     double step = (b - a) / steps;
     double sum1 = f(a + step / 2);  // Will be multiplied by 4
     double sum2 = 0;  // Will be multiplied by 2
@@ -72,7 +77,7 @@ double simpson(double a, double b, double steps, double(*f)(double)) {
     }
     return step/6 * (f(a) + f(b) + 4*sum1 + 2*sum2);
 }
-double int3by8(double a, double b, double steps, double(*f)(double)) {
+double int3by8(double a, double b, double steps, func_t f) {
     double step = (b - a) / steps;
     double h = step / 3;
     double sum = 0;
@@ -82,33 +87,11 @@ double int3by8(double a, double b, double steps, double(*f)(double)) {
     return sum;
 }
 
-void printAllMethods(const double a, const double b, const uint32_t steps, double (*f)(double)) {
-    std::cout << "\n\n====================\n";
-    std::cout << "Results for " << steps << " steps\n";
-
-    double actual = defIntegral(a, b);
-
-    double result = lRect(a, b, steps, f);
-    std::cout << "Left Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = rRect(a, b, steps, f);
-    std::cout << "Right Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = mRect(a, b, steps, f);
-    std::cout << "Middle Rect:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = trapez(a, b, steps, f);
-    std::cout << "Trapezoidal:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = simpson(a, b, steps, f);
-    std::cout << "Simpson:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-
-    result = int3by8(a, b, steps, f);
-    std::cout << "3/8 method:\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
-}
-
 
 int main() {
+    int_func_t int_func[6] = {lRect, rRect, mRect, trapez, simpson, int3by8};
+    std::string func_names[6] = {"Left rect", "Right rect", "Middle rect", "Trapezoidal", "Simpson", "3/8 method"};
+
     double a, b;
     std::cout << "Enter boundaries: ";
     std::cin >> a >> b;
@@ -129,9 +112,16 @@ int main() {
 
     double actual = defIntegral(a, b);
     std::cout << "Actual value:\t" << actual << std::endl;
+    
 
-    printAllMethods(a, b, steps, func);
-    printAllMethods(a, b, l * steps, func);
+    std::cout << "\n\n====================\n";
+    std::cout << "Results:\n";
+
+    double result;
+    for (uint8_t i = 0; i < 6; ++i) {
+        result = int_func[i](a, b, steps, func);
+        std::cout << func_names[i] << ":\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+    }
 
     return 0;
 }
