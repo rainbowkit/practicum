@@ -77,7 +77,7 @@ void calculateValues(vector<pair<double, double>> &table) {
             summand *= (x0 - table.at(i).first) / (table.at(k).first - table.at(i).first);
             cout << " * (x - " << table.at(i).first << ") / " << table.at(k).first - table.at(i).first;
         }
-        if (k < n - 1) cout << " + "
+        if (k < n - 1) cout << " + ";
         sum += summand;
     }
     cout << "Lagrange form: Pn(x0) = " << sum << endl;
