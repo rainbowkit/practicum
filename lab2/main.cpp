@@ -67,12 +67,17 @@ void calculateValues(vector<pair<double, double>> &table) {
 
     // В форме Лагранжа
     double sum = 0, summand;
+    cout << "=====Lagrange Polynomial=====\nL(x) = ";
+    
     for (uint16_t k = 0; k < n; ++k) {
         summand = table.at(k).second;  // f(Xk)
+        cout << table.at(k).second;
         for (uint16_t i = 0; i < n; ++i) {
             if (i == k) continue;
             summand *= (x0 - table.at(i).first) / (table.at(k).first - table.at(i).first);
+            cout << " * (x - " << table.at(i).first << ") / " << table.at(k).first - table.at(i).first;
         }
+        if (k < n - 1) cout << " + "
         sum += summand;
     }
     cout << "Lagrange form: Pn(x0) = " << sum << endl;
