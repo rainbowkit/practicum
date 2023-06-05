@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cmath>
-#include <cstdint>
+#include <iomanip>
 
 
 typedef double(*func_t)(double);
@@ -86,11 +86,15 @@ double int3by8(double a, double b, double steps, func_t f) {
     }
     return sum;
 }
+double runge(uint32_t l, uint32_t d, double int_m, double int_ml) {
+    return (std::pow(l,d+1) * int_ml - int_m) / (std::pow(l,d+1) - 1);
+}
 
 
 int main() {
     int_func_t int_func[6] = {lRect, rRect, mRect, trapez, simpson, int3by8};
     std::string func_names[6] = {"Left rect", "Right rect", "Middle rect", "Trapezoidal", "Simpson", "3/8 method"};
+    uint8_t precision[6] = {0, 0, 1, 1, 3, 3};
 
     double a, b;
     std::cout << "Enter boundaries: ";
@@ -108,19 +112,25 @@ int main() {
     std::cout << "Enter l: ";
     std::cin >> l;
 
-    std::cout << std::scientific;
+    std::cout << std::scientific << std::setprecision(12);
 
     double actual = defIntegral(a, b);
     std::cout << "Actual value:\t" << actual << std::endl;
     
 
-    std::cout << "\n\n====================\n";
-    std::cout << "Results:\n";
+    std::cout << "\n\n==========Results===========\n";
 
-    double result;
+    double result1, result2, refined;
     for (uint8_t i = 0; i < 6; ++i) {
-        result = int_func[i](a, b, steps, func);
-        std::cout << func_names[i] << ":\t" << result << ", Error = " << std::abs(result - actual) << std::endl;
+        result1 = int_func[i](a, b, steps, func);
+        std::cout << func_names[i] << ":\n";
+        std::cout << steps << " steps:\t" << result1 << ", Error = " << std::abs(result1 - actual) << std::endl;
+
+        result2 = int_func[i](a, b, steps * l, func);
+        std::cout << steps * l << " steps:\t" << result2 << ", Error = " << std::abs(result2 - actual) << std::endl;
+
+        refined = runge(l, precision[i], result1, result2);
+        std::cout << "Refined value (Runge):\t" << refined << ", Error = " << std::abs(refined - actual) << "\n\n";
     }
 
     return 0;
